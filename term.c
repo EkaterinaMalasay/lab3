@@ -2,13 +2,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #define N 1024
 
 void main(void)
 {
 	int i = 0;
 	char com[N] = {0};
-	char com2[N] = "/bin/";
 	char *argv[N] = {0};
 	char *pch = " ";
 	pid_t new_pid;
@@ -16,29 +18,37 @@ void main(void)
 	while (1) {
 		write(1, ">>> ", 5);
 		read(0, com, N);
-		i = strcspn(com, "\n");
-		com[i] = 0;
-		if (strcmp(com, "exit") == 0)
-			break;
-		strcat(com2, com);
+		if (strcmp(com, "\n") != 0) {
+			i = strcspn(com, "\n");
+			com[i] = 0;
+			if (strcmp(com, "exit") == 0)
+				break;
 
-		for (i = 0, pch = strtok(com2, " "); pch != NULL; i++) {
-			argv[i] = pch;
-			pch = strtok(NULL, " ");
+			for (i = 0, pch = strtok(com, " "); pch != NULL; i++) {
+				argv[i] = pch;
+				pch = strtok(NULL, " ");
+			}
+			argv[N-1] = (char *) 0;
+
+			new_pid = fork();
+			if (new_pid == -1) {
+				fprintf(stderr, "fork failure");
+				exit(EXIT_FAILURE);
+			}
+			if (new_pid == 0) {
+				execvp(argv[0], argv);
+				exit(0);
+			} else {
+				int stat_val;
+				/*pid_t child_pid;
+				//(void) signal(SIGALRM, SIG_IGN);
+				//kill(new_pid, SIGTERM);
+				child_pid = wait(&stat_val);*/
+				new_pid = wait(&stat_val);
+			}
 		}
-		argv[N-1] = (char *) 0;
-
-		new_pid = fork();
-		if (new_pid == 0) {
-			execv(argv[0], argv);
-			exit(0);
-		} else
-			sleep(1);
-
 		memset(com, 0, N);
-		memset(com2, 0, N);
 		memset(argv, 0, N);
-		strcat(com2, "/bin/");
 	}
 	exit(0);
 }
