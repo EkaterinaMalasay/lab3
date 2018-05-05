@@ -7,13 +7,18 @@
 #include <sys/wait.h>
 #define N 1024
 
+pid_t new_pid;
+
+void sighndlr(int sig) {
+	kill(new_pid, SIGTERM);
+}
+
 void main(void)
 {
 	int i = 0;
 	char com[N] = {0};
 	char *argv[N] = {0};
 	char *pch = " ";
-	pid_t new_pid;
 
 	while (1) {
 		write(1, ">>> ", 5);
@@ -40,10 +45,8 @@ void main(void)
 				exit(0);
 			} else {
 				int stat_val;
-				/*pid_t child_pid;
-				//(void) signal(SIGALRM, SIG_IGN);
+				(void) signal(SIGINT, sighndlr);
 				//kill(new_pid, SIGTERM);
-				child_pid = wait(&stat_val);*/
 				new_pid = wait(&stat_val);
 			}
 		}
