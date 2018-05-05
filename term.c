@@ -46,7 +46,6 @@ void main(void)
 			} else {
 				int stat_val;
 				(void) signal(SIGINT, sighndlr);
-				//kill(new_pid, SIGTERM);
 				new_pid = wait(&stat_val);
 			}
 		}
