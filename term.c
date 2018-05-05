@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 #define N 1024
 
 pid_t new_pid;
@@ -50,6 +51,9 @@ void main(void)
 			} else {
 				int stat_val;
 				(void) signal(SIGINT, sighndlr);
+				if (errno = EACCES) {
+					fprintf(stderr, "command not found\n");
+				}
 				if (sw == 0)
 					new_pid = wait(&stat_val);
 				sw = 0;
