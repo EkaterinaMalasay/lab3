@@ -19,6 +19,7 @@ void main(void)
 	char com[N] = {0};
 	char *argv[N] = {0};
 	char *pch = " ";
+	int sw = 0;
 
 	while (1) {
 		write(1, ">>> ", 5);
@@ -30,7 +31,10 @@ void main(void)
 				break;
 
 			for (i = 0, pch = strtok(com, " "); pch != NULL; i++) {
-				argv[i] = pch;
+				if (strcmp(pch, "&") == 0)
+					sw = 1;
+				else
+					argv[i] = pch;
 				pch = strtok(NULL, " ");
 			}
 			argv[N-1] = (char *) 0;
@@ -46,7 +50,9 @@ void main(void)
 			} else {
 				int stat_val;
 				(void) signal(SIGINT, sighndlr);
-				new_pid = wait(&stat_val);
+				if (sw == 0)
+					new_pid = wait(&stat_val);
+				sw = 0;
 			}
 		}
 		memset(com, 0, N);
