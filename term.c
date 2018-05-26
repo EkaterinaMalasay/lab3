@@ -23,6 +23,7 @@ void main(void)
 	int sw = 0;
 
 	while (1) {
+		sw = 0;
 		write(1, ">>> ", 5);
 		read(0, com, N);
 		if (strcmp(com, "\n") != 0) {
@@ -46,15 +47,13 @@ void main(void)
 				exit(EXIT_FAILURE);
 			}
 			if (new_pid == 0) {
-				execvp(argv[0], argv);
+				if(-1 == execvp(argv[0], argv))
+					fprintf(stderr, "command not found\n");
 				exit(0);
 			} else {
 				int stat_val;
 				(void) signal(SIGINT, sighndlr);
-				if (errno = EACCES) {
-					fprintf(stderr, "command not found\n");
-				}
-				if (sw == 0)
+				if (sw == 0) 
 					new_pid = wait(&stat_val);
 				sw = 0;
 			}
